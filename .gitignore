@@ -1,0 +1,8 @@
+monitoring_web/node_modules
+monitoring_web/.env
+
+receiver/node_modules
+receiver/.env
+
+sender/node_modules
+sender/.env
