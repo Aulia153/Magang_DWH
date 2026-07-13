@@ -67,6 +67,7 @@ function LogTable({ logs, loading }) {
                 {expandedId === log.id && (
                   <tr>
                     <td colSpan={7} className="bg-slate-50 px-4 py-3">
+                      {log.event_id && <p className="mb-2 font-mono text-[11px] text-slate-400">Event ID: {log.event_id}</p>}
                       {log.status === "FAILED" && log.error_message && (
                         <p className="mb-2 text-xs font-medium text-rose-600">Error: {log.error_message}</p>
                       )}

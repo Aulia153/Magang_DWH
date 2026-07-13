@@ -24,12 +24,12 @@ class LogController {
 
     const [rows] = await pool.query(
       `
-      SELECT id, kode_desa, table_name, action, record_id, payload, status, error_message, received_at, processed_at
-      FROM webhook_logs
-      ${whereClause}
-      ORDER BY received_at DESC
-      LIMIT ? OFFSET ?
-      `,
+  SELECT id, event_id, kode_desa, table_name, action, record_id, payload, status, error_message, received_at, processed_at
+  FROM webhook_logs
+  ${whereClause}
+  ORDER BY received_at DESC
+  LIMIT ? OFFSET ?
+  `,
       [...params, Number(limit), Number(offset)],
     );
 

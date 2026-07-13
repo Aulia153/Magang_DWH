@@ -5,8 +5,8 @@ class QueueService {
     const [rows] = await pool.query(
       `
       SELECT *
-      FROM webhook_queue
-      WHERE status = 'PENDING'
+      FROM inbound_queue
+      WHERE status IN ('pending', 'retry')
       ORDER BY id ASC
       LIMIT ?
       `,
@@ -16,15 +16,11 @@ class QueueService {
     return rows;
   }
 
-  static async markProcessing(id) {
-    await pool.query(`UPDATE webhook_queue SET status = 'PROCESSING' WHERE id = ?`, [id]);
-  }
-
   static async markSuccess(id) {
     await pool.query(
       `
-      UPDATE webhook_queue
-      SET status = 'SUCCESS', processed_at = NOW()
+      UPDATE inbound_queue
+      SET status = 'success', processed_at = NOW()
       WHERE id = ?
       `,
       [id],
@@ -32,18 +28,18 @@ class QueueService {
   }
 
   static async markFailed(id, errorMessage) {
-    const [rows] = await pool.query(`SELECT retry_count FROM webhook_queue WHERE id = ?`, [id]);
+    const [rows] = await pool.query(`SELECT retry_count FROM inbound_queue WHERE id = ?`, [id]);
 
     if (rows.length === 0) return;
 
-    const retryCount = rows[0].retry_count + 1;
+    const retryCount = (rows[0].retry_count || 0) + 1;
     const maxRetry = Number(process.env.MAX_RETRY);
 
     if (retryCount >= maxRetry) {
       await pool.query(
         `
-        UPDATE webhook_queue
-        SET status = 'FAILED', retry_count = ?, error_message = ?, processed_at = NOW()
+        UPDATE inbound_queue
+        SET status = 'failed', retry_count = ?, error_message = ?, processed_at = NOW()
         WHERE id = ?
         `,
         [retryCount, errorMessage, id],
@@ -51,17 +47,13 @@ class QueueService {
     } else {
       await pool.query(
         `
-        UPDATE webhook_queue
-        SET status = 'PENDING', retry_count = ?, error_message = ?
+        UPDATE inbound_queue
+        SET status = 'retry', retry_count = ?, error_message = ?
         WHERE id = ?
         `,
         [retryCount, errorMessage, id],
       );
     }
-  }
-
-  static async resetStuckProcessing() {
-    await pool.query(`UPDATE webhook_queue SET status = 'PENDING' WHERE status = 'PROCESSING'`);
   }
 }
 

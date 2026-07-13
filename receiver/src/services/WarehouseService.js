@@ -1,23 +1,40 @@
 const pool = require("../config/database");
 
 const TABLE_MAP = {
-  surat_masuk: {
-    warehouseTable: "dw_surat_masuk",
+  config: {
+    warehouseTable: "dw_config",
     columns: [
-      "nomor_urut",
-      "tanggal_penerimaan",
-      "nomor_surat",
-      "kode_surat",
-      "tanggal_surat",
-      "pengirim",
-      "isi_singkat",
-      "isi_disposisi",
-      "berkas_scan",
+      "app_key",
+      "nama_desa",
+      "kode_desa_bps",
+      "kode_pos",
+      "nama_kecamatan",
+      "kode_kecamatan",
+      "nama_kepala_camat",
+      "nip_kepala_camat",
+      "nama_kabupaten",
+      "kode_kabupaten",
+      "nama_propinsi",
+      "kode_propinsi",
+      "logo",
+      "lat",
+      "lng",
+      "alamat_kantor",
+      "telepon",
+      "kantor_desa",
     ],
   },
   user: {
     warehouseTable: "dw_user",
-    columns: ["username", "id_grup", "email", "last_login", "active", "nama", "company", "phone", "foto"],
+    columns: ["username", "id_grup", "pamong_id", "email", "last_login", "active", "nama", "phone", "foto"],
+  },
+  user_login_history: {
+    warehouseTable: "dw_user_login_history",
+    columns: ["user_id", "login_at", "ip_address"],
+  },
+  kategori: {
+    warehouseTable: "dw_kategori",
+    columns: ["kategori", "tipe", "urut", "enabled", "parent", "slug"],
   },
   artikel: {
     warehouseTable: "dw_artikel",
@@ -29,7 +46,6 @@ const TABLE_MAP = {
       "id_kategori",
       "id_user",
       "judul",
-      "headline",
       "gambar1",
       "gambar2",
       "gambar3",
@@ -38,9 +54,12 @@ const TABLE_MAP = {
       "boleh_komentar",
       "slug",
       "hit",
-      "urut",
-      "jenis_widget",
+      "slider",
     ],
+  },
+  komentar: {
+    warehouseTable: "dw_komentar",
+    columns: ["id_artikel", "owner", "email", "subjek", "komentar", "tgl_upload", "status", "tipe", "no_hp", "is_archived"],
   },
   // Tabel baru cukup ditambahkan di sini, tidak perlu ubah kode lain
 };

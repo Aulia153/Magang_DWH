@@ -1,13 +1,13 @@
 const pool = require("../config/database");
 
 class LogService {
-  static async record({ kode_desa, table_name, action, record_id, payload }) {
+  static async record({ eventId, kode_desa, table_name, action, record_id, payload }) {
     const [result] = await pool.query(
       `
-      INSERT INTO webhook_logs (kode_desa, table_name, action, record_id, payload, status)
-      VALUES (?, ?, ?, ?, ?, 'RECEIVED')
+      INSERT INTO webhook_logs (event_id, kode_desa, table_name, action, record_id, payload, status)
+      VALUES (?, ?, ?, ?, ?, ?, 'RECEIVED')
       `,
-      [kode_desa, table_name, action, record_id, JSON.stringify(payload)],
+      [eventId ?? null, kode_desa, table_name, action, record_id, JSON.stringify(payload)],
     );
 
     return result.insertId;

@@ -3,7 +3,7 @@ const WarehouseService = require("../services/WarehouseService");
 
 class WebhookController {
   static async receive(req, res) {
-    const { table, action, record_id, payload } = req.body;
+    const { event_id, table, action, record_id, payload } = req.body;
     const kode_desa = req.desa.kode_desa;
 
     if (!table || !action || record_id === undefined) {
@@ -11,6 +11,7 @@ class WebhookController {
     }
 
     const logId = await LogService.record({
+      eventId: event_id,
       kode_desa,
       table_name: table,
       action,
@@ -18,7 +19,6 @@ class WebhookController {
       payload,
     });
 
-    // Balas duluan supaya worker desa tidak menunggu proses warehouse selesai
     res.status(200).json({ message: "Diterima", log_id: logId });
 
     try {
