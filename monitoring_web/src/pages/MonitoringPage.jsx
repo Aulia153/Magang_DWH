@@ -22,17 +22,27 @@ function MonitoringPage() {
   offsetRef.current = offset;
 
   const loadLogs = useCallback(async ({ silent = false } = {}) => {
-    if (!silent) setLoading(true);
-    setError(null);
+    if (!silent) {
+      setLoading(true);
+    }
 
     try {
-      const data = await fetchLogs({ ...filtersRef.current, limit: LIMIT, offset: offsetRef.current });
+      const data = await fetchLogs({
+        ...filtersRef.current,
+        limit: LIMIT,
+        offset: offsetRef.current,
+      });
+
       setLogs(data);
       setLastUpdated(new Date());
+
+      setError(null);
     } catch (err) {
-      if (!silent) setError("Gagal mengambil data monitoring. Pastikan server receiver berjalan.");
+      setError("Gagal mengambil data monitoring. Pastikan server receiver berjalan.");
     } finally {
-      if (!silent) setLoading(false);
+      if (!silent) {
+        setLoading(false);
+      }
     }
   }, []);
 
