@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { fetchDesaList, fetchTableList } from "../services/metaService";
+import { formatTableName } from "../utils/formatText";
 
 function FilterBar({ onApply }) {
   const [desaList, setDesaList] = useState([]);
@@ -35,7 +36,10 @@ function FilterBar({ onApply }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-wrap items-end gap-3 rounded-lg border border-slate-200 bg-white p-4">
+    <form
+      onSubmit={handleSubmit}
+      className="flex flex-col gap-3 border-b border-slate-200 bg-white px-4 py-4 sm:flex-row sm:flex-wrap sm:items-end sm:px-6"
+    >
       <div className="flex flex-col gap-1">
         <label className="text-xs font-medium text-slate-500" htmlFor="kode_desa">
           Desa
@@ -44,7 +48,7 @@ function FilterBar({ onApply }) {
           id="kode_desa"
           value={kodeDesa}
           onChange={(e) => setKodeDesa(e.target.value)}
-          className="w-44 rounded-md border border-slate-300 px-3 py-1.5 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+          className="w-full rounded-md border border-slate-300 px-3 py-1.5 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500 sm:w-44"
         >
           <option value="">Semua desa</option>
           {desaList.map((d) => (
@@ -63,12 +67,12 @@ function FilterBar({ onApply }) {
           id="table_name"
           value={tableName}
           onChange={(e) => setTableName(e.target.value)}
-          className="w-40 rounded-md border border-slate-300 px-3 py-1.5 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+          className="w-full rounded-md border border-slate-300 px-3 py-1.5 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500 sm:w-40"
         >
           <option value="">Semua tabel</option>
           {tableList.map((t) => (
             <option key={t} value={t}>
-              {t}
+              {formatTableName(t)}
             </option>
           ))}
         </select>
@@ -82,7 +86,7 @@ function FilterBar({ onApply }) {
           id="action"
           value={action}
           onChange={(e) => setAction(e.target.value)}
-          className="w-36 rounded-md border border-slate-300 px-3 py-1.5 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+          className="w-full rounded-md border border-slate-300 px-3 py-1.5 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500 sm:w-36"
         >
           <option value="">Semua</option>
           <option value="INSERT">INSERT</option>
@@ -92,13 +96,16 @@ function FilterBar({ onApply }) {
       </div>
 
       <div className="flex gap-2">
-        <button type="submit" className="rounded-md bg-slate-900 px-4 py-1.5 text-sm font-medium text-white hover:bg-slate-700">
+        <button
+          type="submit"
+          className="flex-1 cursor-pointer rounded-md bg-slate-900 px-4 py-1.5 text-sm font-medium text-white hover:bg-slate-700 sm:flex-none"
+        >
           Terapkan
         </button>
         <button
           type="button"
           onClick={handleReset}
-          className="rounded-md border border-slate-300 px-4 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-50"
+          className="flex-1 rounded-md border cursor-pointer border-slate-300 px-4 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-50 sm:flex-none"
         >
           Reset
         </button>

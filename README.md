@@ -8,7 +8,7 @@ Project ini terdiri dari tiga komponen independen yang saling terhubung:
 | ------------------ | ----------------------------------------------------------------------------------------------------- | ----------------- |
 | **Sender**         | Worker yang berjalan di tiap desa, memantau antrian perubahan data dan mengirimkannya ke server pusat | `sender/`         |
 | **Receiver**       | REST API di server pusat yang menerima, memvalidasi, dan menyimpan data ke warehouse                  | `receiver/`       |
-| **Monitoring Web** | Dashboard untuk memantau riwayat sinkronisasi secara real-time                                        | `monitoring-web/` |
+| **Monitoring Web** | Dashboard untuk memantau riwayat sinkronisasi secara real-time                                        | `monitoring_web/` |
 
 ---
 
@@ -145,72 +145,11 @@ Dashboard dapat diakses melalui alamat yang ditampilkan Vite (umumnya `http://lo
 
 ---
 
-## Dokumentasi API Receiver
-
-### `POST /api/webhook`
-
-Menerima kiriman perubahan data dari worker sender.
-
-**Header**
-
-```
-Authorization: Bearer <api_token_desa>
-Content-Type: application/json
-```
-
-**Body**
-
-```json
-{
-  "kode_desa": "sukamaju",
-  "table": "artikel",
-  "action": "UPDATE",
-  "record_id": 7,
-  "payload": { "old": { "...": "..." }, "new": { "...": "..." } }
-}
-```
-
-**Respons**
-
-```json
-{ "message": "Diterima", "log_id": 42 }
-```
-
-### `GET /api/logs`
-
-Mengambil riwayat sinkronisasi untuk keperluan monitoring.
-
-**Query Parameter** (semua opsional)
-
-| Parameter    | Tipe   | Keterangan                            |
-| ------------ | ------ | ------------------------------------- |
-| `kode_desa`  | string | Filter berdasarkan desa               |
-| `table_name` | string | Filter berdasarkan tabel sumber       |
-| `action`     | string | `INSERT` / `UPDATE` / `DELETE`        |
-| `limit`      | number | Jumlah baris per halaman (default 50) |
-| `offset`     | number | Offset untuk pagination (default 0)   |
-
-**Contoh**
-
-```
-GET /api/logs?kode_desa=sukamaju&table_name=artikel&action=UPDATE&limit=20
-```
-
-### `GET /api/desa`
-
-Mengambil daftar desa aktif yang terdaftar di sistem.
-
-### `GET /api/tables`
-
-Mengambil daftar nama tabel yang pernah tercatat pada `webhook_logs`.
-
----
-
 ## Alur Kerja Sistem
 
 1. Terjadi perubahan data (`INSERT`/`UPDATE`/`DELETE`) pada tabel yang dipantau di database desa.
-2. Trigger secara otomatis mencatat perubahan tersebut ke tabel `webhook_queue` dalam bentuk payload JSON.
-3. Worker sender melakukan polling terhadap `webhook_queue` setiap interval tertentu, mengambil baris berstatus `PENDING`.
+2. Trigger secara otomatis mencatat perubahan tersebut ke tabel `inbound_queue` dalam bentuk payload JSON.
+3. Worker sender melakukan polling terhadap `inbound_queue` setiap interval tertentu, mengambil baris berstatus `PENDING`.
 4. Worker mengirimkan data melalui HTTP POST ke endpoint `/api/webhook` pada receiver, disertai token autentikasi milik desa tersebut.
 5. Receiver memvalidasi token, mencatat seluruh payload ke `webhook_logs`, kemudian melakukan upsert ke tabel warehouse yang sesuai.
 6. Jika pengiriman gagal, worker akan menandai ulang status sebagai `PENDING` dan mencoba kembali hingga batas retry tercapai, kemudian ditandai `FAILED` jika tetap gagal.

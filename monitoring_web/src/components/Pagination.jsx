@@ -1,10 +1,10 @@
 function Pagination({ offset, limit, count, onPrev, onNext }) {
   const page = Math.floor(offset / limit) + 1;
   const hasPrev = offset > 0;
-  const hasNext = count === limit; // kalau hasil penuh, kemungkinan masih ada halaman berikutnya
+  const hasNext = count === limit;
 
   return (
-    <div className="flex items-center justify-between px-1 text-sm text-slate-500">
+    <div className="flex flex-wrap items-center justify-between gap-2 px-1 text-sm text-slate-500">
       <span>Halaman {page}</span>
       <div className="flex gap-2">
         <button

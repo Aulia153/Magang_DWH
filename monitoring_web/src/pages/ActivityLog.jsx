@@ -2,23 +2,20 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import Navbar from "../components/Navbar";
 import TabMenu from "../components/TabMenu";
-import DashboardStats from "../components/DashboardStats";
 import Footer from "../components/Footer";
 import FilterBar from "../components/FilterBar";
-import LogTable from "../components/LogTable";
+import QueueTable from "../components/QueueTable";
 import Pagination from "../components/Pagination";
 
 import { fetchLogs } from "../services/logService";
 
 const LIMIT = 10;
-const STATS_LIMIT = 1000;
 const POLL_INTERVAL = Number(import.meta.env.VITE_POLL_INTERVAL) || 5000;
 
-function MonitoringPage() {
+const ActivityLog = () => {
   const [filters, setFilters] = useState({});
   const [offset, setOffset] = useState(0);
   const [logs, setLogs] = useState([]);
-  const [statsLogs, setStatsLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [autoRefresh, setAutoRefresh] = useState(true);
@@ -26,14 +23,11 @@ function MonitoringPage() {
 
   const filtersRef = useRef(filters);
   const offsetRef = useRef(offset);
-
   filtersRef.current = filters;
   offsetRef.current = offset;
 
   const loadLogs = useCallback(async ({ silent = false } = {}) => {
-    if (!silent) {
-      setLoading(true);
-    }
+    if (!silent) setLoading(true);
 
     try {
       const data = await fetchLogs({
@@ -46,33 +40,15 @@ function MonitoringPage() {
       setLastUpdated(new Date());
       setError(null);
     } catch {
-      setError("Gagal mengambil data monitoring. Pastikan Receiver berjalan.");
+      setError("Gagal mengambil data antrian. Pastikan Receiver berjalan.");
     } finally {
-      if (!silent) {
-        setLoading(false);
-      }
+      if (!silent) setLoading(false);
     }
-  }, []);
-
-  const loadStats = useCallback(async () => {
-    try {
-      const data = await fetchLogs({
-        ...filtersRef.current,
-        limit: STATS_LIMIT,
-        offset: 0,
-      });
-
-      setStatsLogs(data);
-    } catch {}
   }, []);
 
   useEffect(() => {
     loadLogs();
   }, [filters, offset, loadLogs]);
-
-  useEffect(() => {
-    loadStats();
-  }, [filters, loadStats]);
 
   useEffect(() => {
     if (!autoRefresh || offset !== 0) return;
@@ -83,16 +59,6 @@ function MonitoringPage() {
 
     return () => clearInterval(interval);
   }, [autoRefresh, offset, loadLogs]);
-
-  useEffect(() => {
-    if (!autoRefresh) return;
-
-    const interval = setInterval(() => {
-      loadStats();
-    }, POLL_INTERVAL);
-
-    return () => clearInterval(interval);
-  }, [autoRefresh, loadStats]);
 
   function handleApplyFilters(newFilters) {
     setFilters(newFilters);
@@ -109,20 +75,16 @@ function MonitoringPage() {
         <section>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h2 className="text-md lg:text-2xl font-bold text-slate-900 sm:text-3xl">Monitoring Sinkronisasi Data Desa</h2>
-
-              <p className="mt-2 text-sm text-slate-500">Riwayat aktivitas sinkronisasi webhook dari seluruh desa menuju database induk.</p>
+              <h2 className="text-md font-bold text-slate-900 sm:text-3xl lg:text-2xl">Log Aktivitas</h2>
+              <p className="mt-2 text-sm text-slate-500">Seluruh riwayat event sinkronisasi yang tercatat, lengkap dengan status dan isi payload.</p>
             </div>
           </div>
         </section>
-
-        <DashboardStats logs={statsLogs} />
 
         {error && (
           <div className="rounded-lg border border-red-200 bg-red-50 p-4">
             <div className="flex items-center gap-2">
               <span className="text-lg text-red-600">⚠</span>
-
               <span className="text-sm font-medium text-red-700">{error}</span>
             </div>
           </div>
@@ -131,9 +93,8 @@ function MonitoringPage() {
         <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
           <div className="flex flex-col gap-2 border-b border-slate-200 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
             <div>
-              <h3 className="font-semibold text-slate-800">Aktivitas Sinkronisasi</h3>
-
-              <p className="mt-1 text-sm text-slate-500">Menampilkan data monitoring terbaru.</p>
+              <h3 className="font-semibold text-slate-800">Daftar Antrian</h3>
+              <p className="mt-1 text-sm text-slate-500">Setiap baris menampilkan detail payload secara penuh.</p>
             </div>
 
             {lastUpdated && (
@@ -145,7 +106,7 @@ function MonitoringPage() {
 
           <FilterBar onApply={handleApplyFilters} />
 
-          <LogTable logs={logs} loading={loading} />
+          <QueueTable logs={logs} loading={loading} />
 
           <div className="border-t border-slate-200 bg-slate-50 px-4 py-4 sm:px-6">
             <Pagination
@@ -158,9 +119,10 @@ function MonitoringPage() {
           </div>
         </section>
       </main>
+
       <Footer />
     </div>
   );
-}
+};
 
-export default MonitoringPage;
+export default ActivityLog;
