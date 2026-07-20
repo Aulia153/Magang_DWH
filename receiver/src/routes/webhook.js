@@ -7,3 +7,4 @@ const router = express.Router();
 router.post("/webhook", authenticate, WebhookController.receive);
 
 module.exports = router;
+

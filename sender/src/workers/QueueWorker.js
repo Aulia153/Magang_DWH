@@ -25,7 +25,7 @@ class QueueWorker {
     console.log(`Desa   : ${process.env.DESA_KODE}`);
     console.log(`Target : ${process.env.WEBHOOK_URL}`);
 
-    const pollInterval = Number(process.env.POLL_INTERVAL) || 3000;
+    const pollInterval = Number(process.env.POLL_INTERVAL) || 3000; 
 
     while (true) {
       try {
